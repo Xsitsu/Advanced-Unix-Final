@@ -3,14 +3,14 @@ ifeq ($(KERNELRELEASE),)
 
 KERNELDIR ?= /lib/modules/$(shell uname -r)/build
 PWD := $(shell pwd)
-default: module myioctlApp
+default: module server
 
 module:
 	$(MAKE) -C $(KERNELDIR) SUBDIRS=$(PWD) modules
 
 clean:
 	$(MAKE) -C $(KERNELDIR) SUBDIRS=$(PWD) clean
-	${RM} myioctlApp
+	${RM} server
 
 # Otherwise KERNELRELEASE is defined; we've been invoked from the
 # kernel build system and can use its language.
