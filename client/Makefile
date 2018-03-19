@@ -2,10 +2,10 @@ CC=gcc
 CXX=g++
 
 CFLAGS=-Wall -g -O0
-
-CPPFLAGS=-pthread
-
+CPPFLAGS=
 CXXFLAGS=-Wall -g -O0 -std=c++11
+
+LDFLAGS=-lncurses \
 
 OBJS=
 
@@ -22,10 +22,10 @@ clean:
 	rm -f *~
 
 $(PROGS): %: %.c
-	$(CC) $(CFLAGS) $(CPPFLAGS) $(OBJS) $< -o $@
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(OBJS) $< $(LDFLAGS) -o $@
 
 $(CXXPROGS): %: %.cpp
-	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OBJS) $< -o $@
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(OBJS) $< $(LDFLAGS) -o $@
 
 prog: $(OBJS) $(PROGS) $(CXXPROGS)
 
