@@ -45,70 +45,6 @@ static int mycharClose(struct inode * i,  struct file * f)
 	return 0;
 }
 
-static ssize_t mycharRead(struct file * f, char __user * buf, size_t len, loff_t * offset)
-{
-	int send_len;
-
-	printk(KERN_INFO "lab final Driver: Read Function\n");
-
-	// Send my buffer to userland
-	if(*offset  ==  0)
-	{
-		send_len = buff_len;
-		if (send_len > len)
-		{
-			send_len = len;
-		}
-
-		printk(KERN_INFO "lab final Driver: len: %d; send_len: %d\n", len, send_len);
-
-		if (send_len > 0)
-		{
-			if(copy_to_user(buf, buffer, send_len) != 0)
-			{
-				return -EFAULT;
-			}
-			else
-			{
-				(*offset)++;
-				return send_len;
-			}
-		}
-		else
-		{
-			return 0;
-		}
-	}
-	else
-	{
-		return 0;
-	}
-}
-
-static ssize_t mycharWrite(struct file * f, const char __user * buf, size_t len, loff_t * offset)
-{
-	int write_len;
-
-	printk(KERN_INFO "lab final Driver: Write Function\n");
-
-	write_len = len;
-	if (write_len > BUFF_SIZE)
-	{
-		write_len = BUFF_SIZE;
-	}
-
-	// Copy last char from userland to my buffer
-	if(copy_from_user(buffer, buf + len - write_len, write_len) != 0)
-	{
-		return -EFAULT;
-	}
-	else
-	{
-		buff_len = write_len;
-		return len;
-	}
-}
-
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,35))
 static int my_ioctl(struct inode *i, struct file *f, unsigned int cmd, unsigned long arg)
 #else
@@ -157,8 +93,6 @@ static struct file_operations fops =
 	.owner = THIS_MODULE,
 	.open = mycharOpen,
 	.release = mycharClose,
-	.read = mycharRead,
-	.write = mycharWrite,
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(2,6,35))
 	.ioctl = my_ioctl
 #else

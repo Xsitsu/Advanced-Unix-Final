@@ -7,98 +7,49 @@
 
 #include "myioctl.h"
 
-void set_null(int fd)
-{
-	if (ioctl(fd, QUERY_SET_NULL) == -1)
-	{
-		perror("query_apps ioctl set null");
-	}
-}
+const char *DEVICE_FILE_NAME = "/dev/lab_calc";
 
-void set_A(int fd)
-{
-	if (ioctl(fd, QUERY_SET_A) == -1)
-	{
-		perror("query_apps ioctl set a");
-	}
-}
-
-void get_status(int fd)
+int add(int fd, int x, int y)
 {
 	query_arg_t q;
-	if (ioctl(fd, QUERY_GET_STATUS, &q) == -1)
-	{
-		perror("query_apps ioctl get status");
-	}
-	else
-	{
-		printf("Status: %d\n", q.status);
-	}
+	q.num1 = x;
+	q.num2 = y;
+	q.op = OP_ADD;
+        if (ioctl(fd, QUERY_MATH, &q) == -1)
+        {
+                perror("lab_calc ioctl math add");
+        }
+	return q.result;
 }
 
-void usage(char *prog_name)
+int sub(int fd, int x, int y)
 {
-	fprintf(stderr, "Usage: %s [-s | -n | -a]\n", prog_name);
+	query_arg_t q;
+	q.num1 = x;
+	q.num2 = y;
+	q.op = OP_SUB;
+        if (ioctl(fd, QUERY_MATH, &q) == -1)
+        {
+                perror("lab_calc ioctl math sub");
+        }
+	return q.result;
 }
 
 int main(int argc, char *argv[])
 {
-	char *file_name = "/dev/query";
 	int fd;
-	enum
-	{
-		e_status,
-		e_set_null,
-		e_set_a
-	} option;
 
-	if (argc == 2)
-	{
-		if (strcmp(argv[1], "-s") == 0)
-		{
-			option = e_status;
-		}
-		else if (strcmp(argv[1], "-n") == 0)
-		{
-			option = e_set_null;
-		}
-		else if (strcmp(argv[1], "-a") == 0)
-		{
-			option = e_set_a;
-		}
-		else
-		{
-			usage(argv[0]);
-            		return 1;
-		}
-	}
-	else
-	{
-		usage(argv[0]);
-		return 1;
-	}
-
-	fd = open(file_name, O_RDWR);
+	fd = open(DEVICE_FILE_NAME, O_RDWR);
 	if (fd == -1)
 	{
 		perror("query_apps open sdfsdfdsf");
 		return 2;
 	}
 
-	switch (option)
-	{
-	case e_status:
-		get_status(fd);
-		break;
-	case e_set_null:
-		set_null(fd);
-		break;
-	case e_set_a:
-		set_A(fd);
-		break;
-	default:
-		break;
-	}
+	int res = add(fd, 2, 3);
+	printf("2 + 2 = %d\n", res);
+	res = sub(fd, 20, 5);
+	printf("20 - 5 = %d\n", res);
 
 	close(fd);
 
