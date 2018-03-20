@@ -1,3 +1,13 @@
+#include <stdio.h>
+#include <unistd.h>
+#include <string.h>
+#include <stdlib.h>
+
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+
 #include <ncurses.h>
 
 #include "packet.h"
@@ -17,6 +27,11 @@
 
 #define OPCHAR_PLUS "+"
 #define OPCHAR_MINUS "-"
+
+#define NETWORK_ERR -1333337
+
+char serv_addr[] = "127.0.0.1";
+int serv_port = 40078;
 
 int startx;
 int starty;
@@ -129,6 +144,14 @@ int main()
 		else if (key == CKEY_ENTER)
 		{
 			int result = send_math();
+			if (result != NETWORK_ERR)
+			{
+				wprintw(win, "Result: %d", result);
+			}
+			else
+			{
+				wprintw(win, "NETWORK ERROR");
+			}
 		}
 		else if (key == CKEY_PLUS)
 		{
@@ -218,5 +241,50 @@ void draw_calc(WINDOW *win)
 
 int send_math()
 {
+	int sock_fd = socket(AF_INET, SOCK_STREAM, 0);
+	struct sockaddr_in server_addr;
+	server_addr.sin_family = AF_INET;
+	server_addr.sin_port = htons(serv_port);
+	server_addr.sin_addr.s_addr = inet_addr(serv_addr);
 
+	connect(sock_fd, (struct sockaddr *)&server_addr, sizeof(server_addr));
+
+	request_t request;
+	response_t response;
+
+	request.x = htonl((uint32_t)num_x);
+	request.y = htonl((uint32_t)num_y);
+	if (op == CKEY_PLUS)
+	{
+		request.op = REQUEST_ADD;
+	}
+	else if (op == CKEY_MINUS)
+	{
+		request.op = REQUEST_SUB;
+	}
+
+	write(sock_fd, &request, sizeof(request_t));
+
+	char buff[1024];
+	memset(buff, 0, 1024);
+
+	ssize_t read_size = recv(sock_fd, buff, 1024, 0);
+	if (read_size == sizeof(response_t))
+	{
+		memcpy(&response, buff, sizeof(response_t));
+
+		if (response.status == RESPONSE_VALID)
+		{
+			int result = ntohl((int)response.result);
+			return result;
+		}
+		else
+		{
+			return NETWORK_ERR;
+		}
+	}
+	else
+	{
+		return NETWORK_ERR;
+	}
 }
