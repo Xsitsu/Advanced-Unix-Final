@@ -146,11 +146,8 @@ int main()
 			int result = send_math();
 			if (result != NETWORK_ERR)
 			{
-				wprintw(win, "Result: %d", result);
-			}
-			else
-			{
-				wprintw(win, "NETWORK ERROR");
+				wprintw(win, "\nResult: %d", result);
+				wprintw(win, "                     ");
 			}
 		}
 		else if (key == CKEY_PLUS)
