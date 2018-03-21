@@ -126,7 +126,7 @@ static int __init mycharInit(void)
 		unregister_chrdev_region(dev, MINOR_CNT);
 		return PTR_ERR(cl);
 	}
-	if (IS_ERR(dev_ret = device_create(cl, NULL, dev, NULL, "query")))
+	if (IS_ERR(dev_ret = device_create(cl, NULL, dev, NULL, "lab_calc")))
 	{
 		class_destroy(cl);
 		cdev_del(&c_dev);
@@ -148,7 +148,7 @@ static int __init mycharInit(void)
 	}
 
 	// Create the actual device in /dev folder
-	if(device_create(CharClass, NULL, majorNum, NULL, "query")  ==  NULL)
+	if(device_create(CharClass, NULL, majorNum, NULL, "lab_calc")  ==  NULL)
 	{
 		class_destroy(CharClass);
 		unregister_chrdev_region(majorNum, 1);

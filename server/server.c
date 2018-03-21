@@ -86,12 +86,12 @@ int main(int argc, char *argv[])
 
 				if (request.op == REQUEST_ADD)
 				{
-					response.result = (uint32_t)add(fd, x, y);
+					response.result = htonl((uint32_t)add(fd, x, y));
 					response.status = RESPONSE_VALID;
 				}
 				else if (request.op == REQUEST_SUB)
 				{
-					response.result = (uint32_t)sub(fd, x, y);
+					response.result = htonl((uint32_t)sub(fd, x, y));
 					response.status = RESPONSE_VALID;
 				}
 				else
@@ -122,6 +122,7 @@ int add(int fd, int x, int y)
         {
                 perror("lab_calc ioctl math add");
         }
+	printf("%d + %d = %d\n", x, y, q.result);
 	return q.result;
 }
 
@@ -135,6 +136,7 @@ int sub(int fd, int x, int y)
         {
                 perror("lab_calc ioctl math sub");
         }
+	printf("%d - %d = %d\n", x, y, q.result);
 	return q.result;
 }
 
